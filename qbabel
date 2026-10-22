@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""qbabel -- universal quantum program code translator.
+
+Example:
+    qbabel --from qiskit --fromfile bell.py --to qsharp --tofile bell.qs
+"""
+
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from qbabel_core import SUPPORTED_LANGUAGES, ir_to_json, translate
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        prog="qbabel",
+        description="Translate quantum programs between %s." % ", ".join(
+            SUPPORTED_LANGUAGES))
+    parser.add_argument("--from", dest="from_lang", required=True,
+                        choices=SUPPORTED_LANGUAGES, help="source language")
+    parser.add_argument("--fromfile", required=True, help="source file")
+    parser.add_argument("--to", dest="to_lang", required=True,
+                        choices=SUPPORTED_LANGUAGES, help="target language")
+    parser.add_argument("--tofile", required=True, help="output file")
+    parser.add_argument("--irfile", help="where to write the intermediate JSON "
+                                         "(default: <tofile>_ir.json)")
+    parser.add_argument("--quiet", action="store_true", help="suppress warnings")
+    args = parser.parse_args(argv)
+
+    if not os.path.isfile(args.fromfile):
+        print("qbabel: no such file: %s" % args.fromfile, file=sys.stderr)
+        return 1
+
+    with open(args.fromfile, encoding="utf-8") as handle:
+        source = handle.read()
+
+    name = os.path.splitext(os.path.basename(args.fromfile))[0]
+    result = translate(source, args.from_lang, args.to_lang, name=name)
+
+    ir_path = args.irfile or (os.path.splitext(args.tofile)[0] + "_ir.json")
+    with open(ir_path, "w", encoding="utf-8") as handle:
+        handle.write(ir_to_json(result["ir"]) + "\n")
+
+    directory = os.path.dirname(os.path.abspath(args.tofile))
+    os.makedirs(directory, exist_ok=True)
+    with open(args.tofile, "w", encoding="utf-8") as handle:
+        handle.write(result["code"])
+
+    print("translated %s -> %s (%d operations)"
+          % (args.from_lang, args.to_lang, len(result["ir"]["program"]["operations"])))
+    print("intermediate IR: %s" % ir_path)
+    if result["warnings"] and not args.quiet:
+        for warning in result["warnings"]:
+            print("warning: %s" % warning, file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

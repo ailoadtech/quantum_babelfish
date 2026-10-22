@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quantum Babelfish - Universal quantum code translator</title>
+<script>
+  // set the theme before first paint so there is no flash
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem("qbabel-theme"); } catch (e) {}
+    if (saved !== "light" && saved !== "dark") {
+      saved = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
+    document.documentElement.dataset.theme = saved;
+  }());
+</script>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="head-row">
+    <h1>Quantum Babelfish</h1>
+    <button id="theme-toggle" class="ghost" type="button" aria-pressed="false">light mode</button>
+  </div>
+  <p>Translate quantum programs between ten frameworks. Everything goes through one
+     JSON intermediate representation, which you can inspect below.</p>
+</header>
+
+<main>
+  <section class="pane">
+    <div class="pane-head">
+      <label for="from-lang">from</label>
+      <select id="from-lang"></select>
+      <button id="load-sample" class="ghost">load sample</button>
+      <span class="spacer"></span>
+      <button id="translate" class="primary">translate</button>
+    </div>
+    <textarea id="source" spellcheck="false" placeholder="paste a quantum program here"></textarea>
+  </section>
+
+  <section class="pane">
+    <div class="pane-head">
+      <label for="to-lang">to</label>
+      <select id="to-lang"></select>
+      <span class="spacer"></span>
+      <button id="copy" class="ghost">copy</button>
+      <button id="download" class="ghost">download</button>
+    </div>
+    <pre id="output" class="code" tabindex="0"></pre>
+  </section>
+</main>
+
+<section id="report">
+  <div id="warnings" hidden></div>
+  <details>
+    <summary>Intermediate representation (JSON)</summary>
+    <pre id="ir" class="code"></pre>
+  </details>
+</section>
+
+<footer>
+  <span id="status">ready</span>
+  <span class="spacer"></span>
+  <span class="muted">translation is best effort: unsupported constructs are reported, never silently dropped</span>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

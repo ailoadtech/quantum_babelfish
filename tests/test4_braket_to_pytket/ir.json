@@ -1,0 +1,41 @@
+{
+  "ir_version": "1.0",
+  "program": {
+    "name": "source",
+    "qubits": [
+      {
+        "id": "q0"
+      },
+      {
+        "id": "q1"
+      }
+    ],
+    "classical_bits": [
+      {
+        "id": "c0"
+      },
+      {
+        "id": "c1"
+      }
+    ],
+    "operations": [
+      {
+        "type": "gate",
+        "name": "H",
+        "targets": [
+          "q0"
+        ]
+      },
+      {
+        "type": "gate",
+        "name": "CNOT",
+        "targets": [
+          "q1"
+        ],
+        "controls": [
+          "q0"
+        ]
+      }
+    ]
+  }
+}
